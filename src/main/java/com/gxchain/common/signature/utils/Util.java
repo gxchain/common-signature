@@ -293,7 +293,6 @@ public class Util {
             }
             
             byte[] temp = new byte[count];
-            System.arraycopy(out, out.length - count, temp, 0, temp.length);
             byte[] temp2 = new byte[count];
             Arrays.fill(temp2, (byte) count);
             if (Arrays.equals(temp, temp2)) {

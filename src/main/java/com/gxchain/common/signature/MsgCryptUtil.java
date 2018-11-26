@@ -3,6 +3,7 @@ package com.gxchain.common.signature;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 import com.gxchain.common.signature.utils.*;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +23,10 @@ public class MsgCryptUtil {
 
     /**
      * 数据加密
-     * @param priKey 私钥
-     * @param pubKey 公钥
-     * @param nonce 大整数
+     *
+     * @param priKey  私钥
+     * @param pubKey  公钥
+     * @param nonce   大整数
      * @param message 消息明文
      * @return
      */
@@ -34,9 +36,10 @@ public class MsgCryptUtil {
 
     /**
      * 数据解密
-     * @param priKey 私钥
-     * @param pubKey 公钥
-     * @param nonce 大整数
+     *
+     * @param priKey    私钥
+     * @param pubKey    公钥
+     * @param nonce     大整数
      * @param secretMsg 消息密文
      * @return
      */
@@ -44,10 +47,12 @@ public class MsgCryptUtil {
         return decryptMessage(new Wif(priKey).getPrivateKey(), new Address(pubKey).getPublicKey(), BigInteger.valueOf(nonce), Util.hexToBytes(secretMsg));
     }
 
-    /** 数据解密
-     * @param priKey 私钥
-     * @param pubKey 公钥
-     * @param nonce 大整数
+    /**
+     * 数据解密
+     *
+     * @param priKey    私钥
+     * @param pubKey    公钥
+     * @param nonce     大整数
      * @param secretMsg 消息密文
      * @return
      */
@@ -73,21 +78,15 @@ public class MsgCryptUtil {
 
             byte[] seed = Bytes.concat(nonceBytes, Util.hexlify(Util.bytesToHex(ss)));
 
-            // Calculating checksum
-            byte[] sha256Msg = sha256.digest(message);
-
-
             // Applying decryption
             byte[] temp = Util.decryptAES(message, seed);
+            assert temp != null;
             byte[] checksum = Arrays.copyOfRange(temp, 0, 4);
             byte[] decrypted = Arrays.copyOfRange(temp, 4, temp.length);
             plaintext = new String(decrypted);
             byte[] checksumConfirmation = Arrays.copyOfRange(sha256.digest(decrypted), 0, 4);
             boolean checksumVerification = Arrays.equals(checksum, checksumConfirmation);
             Preconditions.checkArgument(checksumVerification, "Invalid checksum found while performing decryptio");
-            //            if(!checksumVerification){
-            //                throw new ChecksumException("Invalid checksum found while performing decryption");
-            //            }
         } catch (NoSuchAlgorithmException e) {
             LOGGER.info("NoSuchAlgotithmException. Msg:" + e.getMessage());
         }
@@ -129,18 +128,26 @@ public class MsgCryptUtil {
     }
 
     public static void main(String[] args) {
-        String priKey = "5JLL3mqAFt2YHVJf8W3h9oUPP2sjceLYSSyEbSt1yMjeucxGH98";
-        String pubKey = "GXC7XzFVivuBtuc2rz3Efkb41JCN4KH7iENAx9rch9QkowEmc4UvV";
-        String message = "1de139e23fe8786499356aabbddcf4f3";
-        Long nonce = 390796339321678L;
-        LOGGER.info(MsgCryptUtil.decrypt(priKey, pubKey, nonce, message));
-    }
+        int errorCount = 0;
 
-//    public static void main(String[] args) {
-//        String priKey = "5Ka9YjFQtfUUX2DdnqkaPWH1rVeSeby7Cj2VdjRt79S9kKLvXR7";
-//        String pubKey = "GXC67KQNpkkLUzBgDUkWqEBtojwqPgL78QCmTRRZSLugzKEzW4rSm";
-//        String message = "哈哈哈";
-//        String nonce = "390796339321678";
-//        LOGGER.info(MsgCryptUtil.encrypt(priKey, pubKey, nonce, message));
-//    }
+        for (int i = 0; i < 100; i++) {
+            for (int j = 0; j < 10000; j++) {
+                String priKey = "5JLL3mqAFt2YHVJf8W3h9oUPP2sjceLYSSyEbSt1yMjeucxGH98";
+                String pubKey = "GXC7XzFVivuBtuc2rz3Efkb41JCN4KH7iENAx9rch9QkowEmc4UvV";
+                Long nonce = Long.valueOf(RandomStringUtils.randomNumeric(10));
+
+                String priKey1 = "5Ka9YjFQtfUUX2DdnqkaPWH1rVeSeby7Cj2VdjRt79S9kKLvXR7";
+                String pubKey1 = "GXC67KQNpkkLUzBgDUkWqEBtojwqPgL78QCmTRRZSLugzKEzW4rSm";
+                String message1 = RandomStringUtils.random(i);
+                String strEn = MsgCryptUtil.encrypt(priKey1, pubKey1, nonce, message1);
+                String strDe = MsgCryptUtil.decrypt(priKey, pubKey, nonce, strEn);
+
+                if (!strDe.equals(message1)) {
+                    errorCount++;
+                }
+            }
+        }
+
+        System.out.println("error count:" + errorCount);
+    }
 }
