@@ -15,10 +15,10 @@ public class MsgCryptUtilTest {
     String privateKey2 = "5KPiW8BFkyBVaqFFQXqoCZR3mDrt5M6YfbsJtqUEEUsfwT3kQTn";
     String publicKey2 = "GXC6RrtHmAhgJErs6BWZUDL2VQ9uJfAq1airK4wxLzkxeENTjEvth";
 
-    String data = "test";
+    String data = "2";
     @Test
     public void encryptAndDecrypt() throws Exception {
-        long nonce= 2132131232L;
+        long nonce= 1L;
         String s = MsgCryptUtil.encrypt(privateKey1,publicKey2,nonce,data);
         System.out.println(s);
         System.out.println(MsgCryptUtil.decrypt(privateKey2,publicKey1,nonce,s));

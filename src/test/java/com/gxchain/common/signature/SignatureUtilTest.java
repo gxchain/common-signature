@@ -8,15 +8,13 @@ import org.junit.Test;
  * @since 2018/7/9 下午6:22
  */
 public class SignatureUtilTest {
-    String privateKey = "5K7nFgxt99yTz793yvRh5JhsBF69tsJ6JrXPrQdRD7jGGXmM5gT";
-    String publicKey = "GXC5uxQkqkv6wGowANEqg1FJdqPycoo5z2tNd89JkUs3xKoMUAZ2E";
-    String data = "test";
+    String privateKey = "5JSwnoEbw9s3Sjb8uefSa4qMvDTZD36qTn4Etb6c2H5T59ZjXhu";
+    String publicKey = "GXC7Kba8Mot1uGGd4BhFUkUdUftXgiieygyn2WoC7MJWuoqrmsZPt";
+    String data = "1111";
 
     @Test
     public void signatureAndVerify() throws Exception {
         String sig = SignatureUtil.signature(data, privateKey);
-
         System.out.println(sig + "\n" + SignatureUtil.verify(data, sig, publicKey));
     }
-
 }

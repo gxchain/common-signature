@@ -1,6 +1,7 @@
 package com.gxchain.common.signature;
 
 
+import com.gxchain.common.signature.crypto.ec.GxcPrivateKey;
 import com.gxchain.common.signature.utils.PrivateKey;
 import com.gxchain.common.signature.utils.PublicKey;
 import org.junit.Test;
