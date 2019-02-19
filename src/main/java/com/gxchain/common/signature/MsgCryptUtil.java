@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 import com.gxchain.common.signature.utils.*;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,28 +22,25 @@ import java.util.Arrays;
 public class MsgCryptUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(MsgCryptUtil.class);
 
-    /**
-     * 数据加密
-     *
-     * @param priKey  私钥
-     * @param pubKey  公钥
-     * @param nonce   大整数
-     * @param message 消息明文
-     * @return
-     */
+    @Deprecated
     public static String encrypt(String priKey, String pubKey, Long nonce, String message) {
         return Util.bytesToHex(encryptMessage(new Wif(priKey).getPrivateKey(), new Address(pubKey).getPublicKey(), BigInteger.valueOf(nonce), message));
     }
 
     /**
-     * 数据解密
+     * 数据加密
      *
-     * @param priKey    私钥
-     * @param pubKey    公钥
-     * @param nonce     大整数
-     * @param secretMsg 消息密文
+     * @param priKey  私钥
+     * @param pubKey  公钥
+     * @param nonce   大整数型String
+     * @param message 消息明文
      * @return
      */
+    public static String encrypt(String priKey, String pubKey, String nonce, String message) {
+        return Util.bytesToHex(encryptMessage(new Wif(priKey).getPrivateKey(), new Address(pubKey).getPublicKey(), new BigInteger(nonce), message));
+    }
+
+    @Deprecated
     public static String decrypt(String priKey, String pubKey, Long nonce, String secretMsg) {
         return decryptMessage(new Wif(priKey).getPrivateKey(), new Address(pubKey).getPublicKey(), BigInteger.valueOf(nonce), Util.hexToBytes(secretMsg));
     }
@@ -52,10 +50,24 @@ public class MsgCryptUtil {
      *
      * @param priKey    私钥
      * @param pubKey    公钥
+     * @param nonce     大整数型String
+     * @param secretMsg 消息密文
+     * @return
+     */
+    public static String decrypt(String priKey, String pubKey, String nonce, String secretMsg) {
+        return decryptMessage(new Wif(priKey).getPrivateKey(), new Address(pubKey).getPublicKey(), new BigInteger(nonce), Util.hexToBytes(secretMsg));
+    }
+
+    /**
+     * 数据解密
+     *
+     * @param priKey    私钥
+     * @param pubKey    公钥
      * @param nonce     大整数
      * @param secretMsg 消息密文
      * @return
      */
+    @Deprecated
     public static String decrypt(String priKey, String pubKey, Long nonce, byte[] secretMsg) {
         return decryptMessage(new Wif(priKey).getPrivateKey(), new Address(pubKey).getPublicKey(), BigInteger.valueOf(nonce), secretMsg);
     }
@@ -127,27 +139,4 @@ public class MsgCryptUtil {
 
     }
 
-    public static void main(String[] args) {
-        int errorCount = 0;
-
-        for (int i = 0; i < 100; i++) {
-            for (int j = 0; j < 10000; j++) {
-                String priKey = "5JLL3mqAFt2YHVJf8W3h9oUPP2sjceLYSSyEbSt1yMjeucxGH98";
-                String pubKey = "GXC7XzFVivuBtuc2rz3Efkb41JCN4KH7iENAx9rch9QkowEmc4UvV";
-                Long nonce = Long.valueOf(RandomStringUtils.randomNumeric(10));
-
-                String priKey1 = "5Ka9YjFQtfUUX2DdnqkaPWH1rVeSeby7Cj2VdjRt79S9kKLvXR7";
-                String pubKey1 = "GXC67KQNpkkLUzBgDUkWqEBtojwqPgL78QCmTRRZSLugzKEzW4rSm";
-                String message1 = RandomStringUtils.random(i);
-                String strEn = MsgCryptUtil.encrypt(priKey1, pubKey1, nonce, message1);
-                String strDe = MsgCryptUtil.decrypt(priKey, pubKey, nonce, strEn);
-
-                if (!strDe.equals(message1)) {
-                    errorCount++;
-                }
-            }
-        }
-
-        System.out.println("error count:" + errorCount);
-    }
 }
