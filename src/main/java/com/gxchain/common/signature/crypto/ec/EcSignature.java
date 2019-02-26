@@ -58,35 +58,6 @@ public class EcSignature {
     }
 
 
-    /**
-     * Returns true if the S component is "low", that means it is below HALF_CURVE_ORDER. See <a
-     * href="https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#Low_S_values_in_signatures">BIP62</a>.
-     */
-
-    public boolean isCanonical() {
-        return s.compareTo(curveParam.halfCurveOrder()) <= 0; // Secp256k1Param.HALF_CURVE_ORDER) <= 0;
-    }
-
-    /**
-     * Will automatically adjust the S component to be less than or equal to half the curve order, if necessary.
-     * This is required because for every signature (r,s) the signature (r, -s (mod N)) is a valid signature of
-     * the same message. However, we dislike the ability to modify the bits of a Bitcoin transaction after it's
-     * been signed, as that violates various assumed invariants. Thus in future only one of those forms will be
-     * considered legal and the other will be banned.
-     */
-    public EcSignature toCanonicalised() {
-        if (!isCanonical()) {
-            // The order of the curve is the number of valid points that exist on that curve. If S is in the upper
-            // half of the number of valid points, then bring it back to the lower half. Otherwise, imagine that
-            //    N = 10
-            //    s = 8, so (-8 % 10 == 2) thus both (r, 8) and (r, 2) are valid solutions.
-            //    10 - 8 == 2, giving us always the latter solution, which is canonical.
-            return new EcSignature(r, curveParam.n().subtract(s), curveParam); //Secp256k1Param.n.subtract(s));
-        } else {
-            return this;
-        }
-    }
-
     @Override
     public boolean equals(Object other) {
         if (this == other)
@@ -132,5 +103,19 @@ public class EcSignature {
         }
 
         return HexUtils.toHex(encoding(true));
+    }
+
+    /**
+     * https://docs.gxchain.org/advanced/signature.html
+     * @return
+     */
+    public boolean isFCCanonical() {
+        byte[] byte_r = r.toByteArray();
+        byte[] byte_s = s.toByteArray();
+
+        return !((byte_r[0] & 0x80) > 0)
+                && !(byte_r[0] == 0 && !((byte_r[1] & 0x80) > 0))
+                && !((byte_s[0] & 0x80) > 0)
+                && !(byte_s[0] == 0 && !((byte_s[1] & 0x80) > 0));
     }
 }

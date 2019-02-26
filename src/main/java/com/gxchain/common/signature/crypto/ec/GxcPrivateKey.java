@@ -127,7 +127,11 @@ public class GxcPrivateKey {
      * @note use Elliptic Curve Cryptography signture hash
      */
     public EcSignature sign(Sha256 digest) {
-        return EcDsa.sign(digest, this);
+        EcSignature signature = null;
+        do {
+            signature = EcDsa.sign(digest, this);
+        } while (!signature.isFCCanonical());
+        return signature;
     }
 
     @Override

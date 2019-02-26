@@ -143,6 +143,7 @@ public class EcDsa {
         while (true) {
             deterministicGenerateK(curveParam, hash.getBytes(), privAsBI, checker, nonce++);
 
+            // Returns true if the S component is "low", that means it is below HALF_CURVE_ORDER. See <a href="https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#Low_S_values_in_signatures">BIP62</a>.
             if (checker.s.compareTo(curveParam.halfCurveOrder()) > 0) {//  Secp256k1Param.HALF_CURVE_ORDER) > 0) {
                 checker.s = curveParam.n().subtract(checker.s);//   Secp256k1Param.n.subtract(checker.s);
             }
